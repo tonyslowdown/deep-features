@@ -1,42 +1,43 @@
-- Download images
+- Data
   - Download dog images
 	- ImageNet http://vision.stanford.edu/aditya86/ImageNetDogs/
-	- Instagram https://gist.github.com/rubinovitz/6348163
-  - check another couple of the 1000 classification categories in imagenet
-  - one category for non-classification category on imagenet (show that this works in imagenet)
+  - Download and curate korean food images
+	- Go through each photo and remove irrelevant ones
 
-- Modify inception v3 classify_image.py to extract deep features, and run it on all image datasets
+- Try
+  - Transfer learning
+	- using deep features
+	- retraining from beginning if possible
+  - Modify inception v3 classify_image.py to extract deep features, and run it on all image datasets
+  - use dato, caffe pretrained networks, metamind API
+  - Upload same train-test set to metamind and test how it does using api - write up comparison
 
-- Technology
+- Tech stack
   - cassandra/lucene
   - angular2.0?
-  - set up caffe, torch
-  - use dato, caffe pretrained networks
+  - android/ios apps
+  - web server
+	- django
+	- golang
 
-- search for other “filtering” methods to compare against
-
-- applications:
-  - use transfer learning for filtering categories not included in imagenet
-  - reverse - let users know that their image is not that special
-
-- pca to reduce features (find meaning of each attribute from papers)
+- Possible applications:
+  - Korean food recommender system using deep features
+  - Lost dogs, children, stolen cars
+  - Use deep features as embedding, like wordvec (find source pdf to cite)
+	- filtering images in feeds, i.e. instagram
+	- reverse - let users know that their image is not that special
+	- pca to reduce features (find meaning of each attribute from papers) - didn't work
+	  - second row: puppy, clothes, person in the picture, which are more interesting than first row (image_processing.ipynb)
+	  - PCA with marginal features (http://imagine.enpc.fr/~aubrym/projects/features_analysis/texts/understanding_deep_features_with_CG.pdf)
+		- various colors
+		- square sizes
+		- different cropped shapes of same image
 
 - Report: write arxive-type paper in markdown
-  - use deep features as embedding, like wordvec (find source pdf to cite)
-  - predict action: 2 approaches
-	- PCA with marginal features (http://imagine.enpc.fr/~aubrym/projects/features_analysis/texts/understanding_deep_features_with_CG.pdf)
-	- training another layer to predict action
   - formulate/motivate the problem
   - optimize computing - inception modules same goal (look at paper http://arxiv.org/pdf/1512.00567v3.pdf)
   - similarity ranking - http://users.eecs.northwestern.edu/~jwa368/pdfs/deep_ranking.pdf
 	- how to measure?
-
-second row:
-puppy
-clothes
-with somebody (human)
-
-marginal analysis
-	- various colors
-	- square sizes
-	- different cropped shapes of same image
+	- check that deep feature embedding distances is monotonic with respect to "likeness" - proof?
+		- show cluster of tSNE
+		- show avg distance from each other vs other labels

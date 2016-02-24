@@ -3,5 +3,8 @@ Images/
 Images_features/
 Images_filenames/
 *pyc
-dogs_data.raw.txt
-dogs_data.txt
+data/
+trash/
+*~
+*#
+.env
