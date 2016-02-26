@@ -4,12 +4,24 @@
   - Download and curate korean food images
 	- Go through each photo and remove irrelevant ones
 
-- Try
+- TODO
+  - Take tensorflow course on udacity, watch some of Richard Socher's videos online (stanford course)
+  - Prepare deep features data - modify inception v3 classify_image.py to extract deep features, and run it on all image datasets
+  - Install tensorflow w gpu acceleration - https://medium.com/@fabmilo/how-to-compile-tensorflow-with-cuda-support-on-osx-fd27108e27e1#.gi1hidszm
+	- apply fix described here before compiling: https://github.com/tensorflow/tensorflow/issues/582
+	- Please specify the Cuda SDK version you want to use. [Default is 7.0]: 7.5
+	- Please specify the Cudnn version you want to use. [Default is 6.5]: 4
+	- Please specify a list of comma-separated Cuda compute capabilities you want to build with. [Default is: "3.5,5.2"]: 3.0
+	- speedup on benchmarked w inception v3 retrain:
+	  - 2000 training steps: 2m18.055s -> 2m30.295s no speedups at all
+	  - 1000 training steps: 1m11.341s -> 1m19.523s
   - Transfer learning
 	- using deep features
-	- retraining from beginning if possible
-  - Modify inception v3 classify_image.py to extract deep features, and run it on all image datasets
-  - use dato, caffe pretrained networks, metamind API
+	  - other sklearn classifiers
+	  - tensorflow retraining - https://www.tensorflow.org/versions/master/how_tos/image_retraining/index.html#training-on-your-own-categories
+		- modify add_evaluation_step method to use f1_score with average='micro'
+	- retrain entire inception-v3 network
+  - use dato, caffe pretrained networks
   - Upload same train-test set to metamind and test how it does using api - write up comparison
 
 - Tech stack
