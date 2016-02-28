@@ -5,7 +5,7 @@
 	- Go through each photo and remove irrelevant ones
 
 - TODO
-  - Take tensorflow course on udacity, watch some of Richard Socher's videos online (stanford course)
+  - Take tensorflow course on udacity, watch some of Richard Socher's videos online (stanford course) - 1 week, 7 lectures, some twice
   - Prepare deep features data - modify inception v3 classify_image.py to extract deep features, and run it on all image datasets
   - Install tensorflow w gpu acceleration - https://medium.com/@fabmilo/how-to-compile-tensorflow-with-cuda-support-on-osx-fd27108e27e1#.gi1hidszm
 	- apply fix described here before compiling: https://github.com/tensorflow/tensorflow/issues/582
@@ -18,17 +18,18 @@
   - Transfer learning
 	- using deep features
 	  - other sklearn classifiers
+	  - Upload same train-test set to metamind and test how it does using api
 	  - tensorflow retraining - https://www.tensorflow.org/versions/master/how_tos/image_retraining/index.html#training-on-your-own-categories
-		- modify add_evaluation_step method to use f1_score with average='micro'
-	- retrain entire inception-v3 network
-  - use dato, caffe pretrained networks
-  - Upload same train-test set to metamind and test how it does using api - write up comparison
+  - Retrain entire v3 network? - not for udacity capstone (need server, laptop will fry)
+  - Caffe pretrained networks - not for udacity capstone (no time)
+  - Create android app that recommends restaurants - yelp api?
 
 - Tech stack
-  - cassandra/lucene
+  - android - submit for udacity capstone
+  - ios app?
+  - cassandra/lucene?
   - angular2.0?
-  - android/ios apps
-  - web server
+  - web server?
 	- django
 	- golang
 
@@ -48,8 +49,10 @@
 - Report: write arxive-type paper in markdown
   - formulate/motivate the problem
   - optimize computing - inception modules same goal (look at paper http://arxiv.org/pdf/1512.00567v3.pdf)
+  - set benchmark accuracy with sklearn algorithms + metamind
+  - analyze test accuracy, confusion matrix, etc using tensorflow results similar to metamind results https://www.metamind.io/classifiers/41180/stats
   - similarity ranking - http://users.eecs.northwestern.edu/~jwa368/pdfs/deep_ranking.pdf
-	- how to measure?
+	- how to measure? - use confusion matrix to see which ones are mistaken the most
 	- check that deep feature embedding distances is monotonic with respect to "likeness" - proof?
 		- show cluster of tSNE
 		- show avg distance from each other vs other labels
