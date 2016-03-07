@@ -815,6 +815,11 @@ def main(_):
                  ground_truth_tensor: test_ground_truth})
   print('Final test accuracy = %.1f%%' % (test_accuracy * 100))
 
+  # Use saver to save model
+  # saver = tf.train.Saver()
+  # save_path = saver.save(sess, "./kfood.ckpt")
+  # print("Model saved in file: %s" % save_path)
+
   # Write out the trained graph and labels with the weights stored as constants.
   output_graph_def = graph_util.convert_variables_to_constants(
       sess, graph.as_graph_def(), [FLAGS.final_tensor_name])

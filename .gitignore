@@ -10,3 +10,6 @@ trash/
 .env
 tensorflow_retrain/kfood/
 *.pb
+report.pdf
+tensorflow_retrain/checkpoint
+tensorflow_retrain/retrain.log
