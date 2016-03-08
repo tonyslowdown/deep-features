@@ -56,3 +56,6 @@
 	- check that deep feature embedding distances is monotonic with respect to "likeness" - proof?
 		- show cluster of tSNE
 		- show avg distance from each other vs other labels
+
+  - TODO
+    - add stuff about django and android apps

@@ -27,12 +27,14 @@ In order to set a benchmark performance, other machine learning tools and algori
 ## Metrics
 
 For this supervised multi-class classification problem, the performance of the models were primarily measured by *accuracy* on the test data, as defined by the following formula:
-$$accuracy = \frac{ TP | TN }{TP | FP | FN | TN}$$
+$$accuracy = \frac{ TP + TN }{TP + FP + FN + TN}$$
 $TP$ is true positives, $TN$ is true negatives, $FP$ is false positives, and $TN$ is true negatives.
 
-For training the last layer of the deep convolutional network, the objective loss function is *cross entropy* (also known as $log loss$) defined as:
+For training the last layer of the deep convolutional network, the objective loss function is *cross entropy* (also known as *log loss*) defined as:
 $$log loss = -\frac{1}{N}\sum_{i=1}^N\sum_{j=1}^Ky_{ij}\log(p_{ij})$$
 $N$ is the number of training samples, $K$ is the number of classes, which is the number of Korean food dishes in this project, $y_{ij}$ is the correct binary value (1 if it is that label, 0 otherwise) for the $jth$ label for sample $i$, and $p_{ij}$ is the predicted probability of sample $i$ for the $jth$ label.
+
+Fine-tuning support vector classifier and logistic regression models using cross-validated grid-search also used *cross entropy*.
 
 *F1 score* was also considered for analysis, but because the distribution of training data across each of the labels was not overly skewed (See Figure \ref{figure_data_distrib}), *accuracy* was good enough to gauge performance for this multi-classification problem.
 
@@ -134,6 +136,10 @@ Table: (Stratified Train-Test Split) \label{table_train_test_split}
 
 Transfer learning in machine learning is the application of knowledge learned in one problem to another similar or related problem, and has been around for at least a couple of decades [@wiki:transfer]. A relatively recent discovery of transfer learning through trained deep neural networks has raised a lot of excitement and opened doors to a lot of applications. Researchers found that the trained weights of nodes in a trained network, particularly the lower and mid-level nodes, can be copied readily to other deep networks, along with the structure of the deep network, and just retraining the high-level classification layer can result in a network that performs very well for a new problem. For example, for image recognition, taking a convolutional neural network that performs very well on recognizing various types of images and retraining the classification layer to identify a specific set of labels such as dog breeds or food types can work well. That's because the lower nodes and layers of the CNN learn low-level features of the images, which are necessary for many image recognition tasks, but the higher nodes and layers learn high-level features, which tend to be more specific to the dataset [@YosinskiCBL14].
 
+A big advantage of transfer learning is that we can drastically reduce the total amount of computations needed to train deep networks. Successful deep learning projects are often trained on high performance clusters and servers with GPUS to reduce the time to compute all the vectorized matrix operations, and runtimes can be hours, days and even weeks. With only a personal laptop, an engineer can take one of these trained networks, and just retrain the last layer of the network on a smaller set of data for a specific classification task without performance or memory issues.
+
+A disadvantage of transfer learning is that the resulting classifier model may not be able to outperform a CNN whose entire set of weights are retrained at all levels for the specific problem, not just the upper layers. A good way to leverage a trained CNN would be to take the weights and use them as initial values, but keep them variable so that the model can be fine-tuned for the specific problem. As long as there is enough good-quality training data that won't cause the new CNN to overfit to the training set, retraining the entire network may be a better idea if the computing resources are available.
+
 The Inception-v3 network was used to generate 2048 deep features, and the top fully-connected layer of the network was retrained, which applies the Softmax function to output probability values for each of the Korean food labels.
 
 ### Benchmark
@@ -174,25 +180,114 @@ Table: (Preliminary Benchmark of Non-Neural Network Algorithms) \label{table_pre
 
 The 3 highest preforming algorithms from Table \ref{table_preliminary_non_nn} that were selected for fine-tuning were SVC (Support Vector Classifier) with a linear kernel, Logistic Regression using multiple one-vs-rest classifiers, and Logistic Regression using a single multinomial model.
 
+After fine-tuning the parameters of the three models using cross-validated grid search, the performance of the models on the test set improved marginally.
+
+| Algorithm                      | Preliminary | After Fine-tuning
+| -------------------------------|-------------|------------------
+| SVC                            | 0.794       | 0.797
+| LogisticRegression ovr         | 0.793       | 0.797
+| LogisticRegression multinomial | 0.804       | 0.806
+
+Table: (Fine-Tuned Model Accuracy On Test Data) \label{table_fine_tuned}
+
 
 #### MetaMind
 
-MetaMind, a private startup specializing in deep learning services, provides limited free services image classification. Though there isn't much documentation about the specific algorithms used on the site, based on my readings and what I know of their CEO, Richard Socher, I deduced that their image recognition service uses transfer learning of deep convolutional networks.
-
-
+MetaMind, a private startup specializing in deep learning services, provides limited free services image classification. Their API allows users to upload test datasets to train a small dataset for transfer learning on a convolutional neural network, and then to submit data to get predictions. Using the train-test split data, I trained a classifier and ran tests to see the performance. The training accuracy was 79%, and test accuracy was 0.77.
 
 # Methods
+
+## Implementation
+
+The data analysis and machine learning algorithms were run on a Jupyter Notebook running Python 2.7. The non-neural network algorithms were run using the Scikit-learn library, and TensorFlow was used for running deep learning algorithms.
+
+Running TensorFlow's `classify_image.py`, based on the TensorFlow documentation [@TF:Recognition] did not work for me out of the box. My initial TensorFlow installation was version 6.0, but the tutorial made use of a library that was not implemented at the time. However, upgrading to a newer version 7.0 caused another error. I was able to find an easy fix by staying with version 6.0, and modifying `classify_image.py`. The details are outlined in this [StackOverflow post](http://stackoverflow.com/questions/35402749/while-running-tensorflows-classify-image-getting-attributeerror-module-obje/35445083#35445083), where my answer is marked as the solution.
+
+During the course of the project, I learned that the TensorFlow team provided a tutorial on retraining the Inception-v3 network's final layer for custom categories and images [@TF:Retrain], so I was able to use that tutorial and the tutorial's python script `retrain.py` provided in the TensorFlow source code for this project.
+
+TensorFlow's default installation guides do not provide a way to install TensorFlow on OSX with CUDA support. Because my laptop has a discrete Nvidia graphics card, I wanted to see how much performance improvements I would get if I compiled TensorFlow on my laptop with CUDA support. After compiling TensorFlow on my laptop using a step-by-step guideline [@TF:CUDA] and modifying `retrain.py` to use GPU for some of the matrix operations, I measured the time it took to train using the hyperparameters. Unfortunately, I did not get any speedups. In fact, the version compiled with CUDA ran slightly slower, though this could be due to compiler optimizations.
+
+|Training steps | Default Install | Compiled w CUDA
+|---------------|-----------------|----------------
+|2000           | 2m18.055s       | 2m30.295s
+|1000           | 1m11.341s       | 1m19.523s
+
+Table: (Performance Comparison of TensorFlow w GPU) \label{table_gpu}
+
+
+## Refinement
+
+Refining the TensorFlow model is a process of searching for the set of hyperparameters that would result in the highest test accuracy. Luckily, the `retrain.py` script provides ways to do this with several hyperparameters that can be inputted as arguments to the script. The following hyperparameters are available: training steps, learning rate, train batch size, validation percentage, testing percentage
+
+The script also provides ways to distort the input image files in order to increase the effective size of the dataset, such as random horizontal flipping of the images, random cropping, random scaling and randomly changing the brightness of the images. However, these require image manipulations that are very intense, and when I tried enabling these parameters, I was never able to finish processing a single run of the `retrain.py` script.
+
+Because `retrain.py` randomly selects validation and test datasets, I fixed the validation percentage to 5% and testing percentage to 25%. This was in order to keep it similar to the way the non-neural network algorithms were evaluated, where the test data consisted of 30% of the entire data set. Then, I tried various combinations of the number of training steps, learning rate, and train batch size to find the set of hyperparameters that would result in the highest test accuracy.
+
+Table \ref{table_hyperparam} shows some examples of the runs to search for the optimal set of hyperparameters.
+
+train steps    | learn rate    | train batch      | train acc %      | valid acc %      | test acc %      | runtime
+---------------|---------------|------------------|------------------|------------------|-----------------|------------
+5000           | 0.01          | 200              | 92.5             | 74.0             | 77.4            | 10m26.148s
+5000           | 0.01          | 175              | 92.6             | 74.0             | 80.2            | 8m51.950s
+5500           | 0.01          | 175              | 95.4             | 74.0             | 76.0            | 10m28.258s
+5800           | 0.01          | 175              | 90.9             | 68.0             | 80.2            | 11m7.562s
+5900           | 0.01          | 175              | 94.9             | 76.0             | 79.0            | 10m36.280s
+6000           | 0.01          | 175              | 94.3             | 69.0             | 81.4            | 11m11.572sp
+6100           | 0.01          | 175              | 93.7             | 73.0             | 77.4            | 12m26.308s
+6500           | 0.01          | 175              | 95.4             | 75.0             | 75.6            | 12m32.043s
+7000           | 0.01          | 175              | 96.6             | 76.0             | 79.2            | 13m23.146s
+5000           | 0.01          | 150              | 95.3             | 80.0             | 77.8            | 7m46.747s
+5000           | 0.01          | 125              | 98.4             | 77.0             | 78.2            | 6m35.836s
+5000           | 0.01          | 100              | 96.0             | 67.0             | 81.2            | 5m25.950s
+5400           | 0.01          | 100              | 92.0             | 73.0             | 78.4            | 6m27.017s
+5450           | 0.01          | 100              | 91.0             | 67.0             | 79.0            | 6m27.963s
+5500           | 0.01          | 100              | 93.0             | 78.0             | 82.0            | 6m45.637s
+5500           | 0.01          | 120              | 96.7             | 78.0             | **82.4**        | 7m35.594s
+5550           | 0.01          | 100              | 95.0             | 80.0             | 80.6            | 6m37.738s
+5600           | 0.01          | 100              | 95.0             | 73.0             | 80.2            | 6m52.054s
+6000           | 0.01          | 100              | 96.0             | 78.0             | 78.8            | 6m33.281s
+7000           | 0.01          | 100              | 96.0             | 72.0             | 79.6            | 7m39.502s
+8000           | 0.01          | 100              | 97.0             | 78.0             | 79.8            | 8m39.124s
+10000          | 0.01          | 100              | 97.0             | 71.0             | 78.6            | 10m49.417s
+
+Table: (Hyperparemeter Search) \label{table_hyperparam}
 
 
 # Results
 
+The final retrained TensorFlow model had a test accuracy of 82.4%, which is a little bit better than the benchmarks, whose accuracies were around 80%. It performed better than the MetaMind model, which had accuracy of 77%. In general, most of the TensorFlow runs resulted in very similar ranges of around 80%, and small perturbations in the hyperparameters doesn't affect the model performance greatly. The best hyperparameters are shown in table \ref{table_hyperparam_optimal}.
+
+hyperparameter      | value
+--------------------|---------------
+training_steps      | 5500
+learning_rate       | 0.01
+train_batch_size    | 120
+
+Table: (Optimal Hyperparemeters) \label{table_hyperparam_optimal}
+
+![Training Accuracy \label{figure_train_acc}](report_images/train_acc.png "TensorFlow Training Accuracy")
+
+![Validation Accuracy \label{figure_valid_acc}](report_images/valid_acc.png "Validation Accuracy During Training")
+
+![Cross Entropy \label{figure_cross_ent}](report_images/cross_ent.png "Cross Entropy During Training")
 
 # Discussion
 
-A big advantage of transfer learning is that we can drastically reduce the total amount of computations needed to train deep networks. Successful deep learning projects are often trained on high performance clusters and servers with GPUS to reduce the time to compute all the vectorized matrix operations, and runtimes can be hours, days and even weeks. With only a personal laptop, an engineer can take one of these trained networks, and just retrain the last layer of the network on a smaller set of data for a specific classification task without performance or memory issues.
+The results of 82.4% accuracy on test set is pretty good given that there wasn't a lot of training data and that only a single layer was trained. I think that the performance can be improved greatly if instead of just retraining the last layer, the entire network is retrained, with the Inception-v3 weights as initial values. Also, having more data would probably increase the performance by a few percentage points.
 
-A disadvantage of transfer learning is that the resulting classifier model may not be able to outperform a CNN whose entire set of weights are retrained at all levels for the specific problem, not just the upper layers. A good way to leverage a trained CNN would be to take the weights and use them as initial values, but keep them variable so that the model can be fine-tuned for the specific problem. As long as there is enough good-quality training data that won't cause the new CNN to overfit to the training set, retraining the entire network may be a better idea if the computing resources are available.
+Figure \ref{figure_cm} shows a confusion matrix of the predictions run on the test set. Here we can see that similar foods are mis-labeled. For example, sullungtang and samgyetang are two kinds of soups that are white-ish in color, and the retrained model tends to misclassify one for the other. This kind of mistake can actually be made by humans also.
 
+![Confusion Matrix on Test Set \label{figure_cm}](report_images/retrained_cm.png "Confusion Matrix on Test Set")
+
+![Sullungtang (Beef Broth Soup) \label{figure_sullungtang}](report_images/sullungtang.jpg "Sullungtang (Beef Soup)")
+
+![Samgyetang (Ginger Chicken Soup) \label{figure_samgyetang}](report_images/samgyetang.jpg "Samgyetang (Chicken Soup)")
+
+Image recognition can and is already being used for a variety of real-world applications. Transfer learning deep convolutional networks, opens doors to even more applications that can be developed quickly. Possible applications include food recommenders based on images for food apps where searches on images can be run on a database of images or image embeddings to search for restaurants that have the food that the user wants.
+
+![2D t-SNE Plot of Deep Features \label{figure_tsne}](report_images/tsne.png "2D t-SNE Plot of Deep Features")
+
+Figure \ref{figure_tsne} shows that the image embeddings are spatially clustered in coordinate space, meaning that the deep feature embeddings can be used for identifying similar images and filtering. In addition to recommender systems, these can be used for an app that can help find lost dogs where users can upload photos of stray dogs and it can be matched with a database of lost dogs. The spectrum of areas that can apply this technology is very wide, but the core technology is the same. That's very exciting!
 
 
 # References
