@@ -59,3 +59,10 @@
 
   - TODO
     - add stuff about django and android apps
+
+
+# Generate Report
+
+``` bash
+pandoc REPORT.md -o report.pdf --filter pandoc-citeproc --latex-engine=xelatex
+```
