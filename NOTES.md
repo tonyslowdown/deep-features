@@ -57,10 +57,6 @@
 		- show cluster of tSNE
 		- show avg distance from each other vs other labels
 
-  - TODO
-    - add stuff about django and android apps
-
-
 # Generate Report
 
 ``` bash
