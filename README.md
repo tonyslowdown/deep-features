@@ -4,6 +4,22 @@ Creating a machine learning model to recognize Korean foods in photos using Goog
 
 The resulting TensorFlow model was used to develop a [Django web server](https://github.com/jjinking/kfood-server) and an [Android app](https://github.com/jjinking/kfood-android) that can send photos of Korean food to the web server and receives back the classification label.
 
+## Requirements
+
+TensorFlow v6.0
+[Datsci](https://github.com/jjinking/datsci/) - my personal library used for data science-related projects
+jupyter==1.0.0
+matplotlib==1.5.1
+MetaMindApi==1.2.2
+numpy==1.10.4
+pandas==0.17.1
+Pillow==3.1.0
+prettytable==0.7.2
+scikit-learn==0.17.1
+scipy==0.17.0
+seaborn==0.7.0
+
+
 ## Machine Learning
 
 [Full report](https://github.com/jjinking/deep-features/blob/master/report.pdf)
