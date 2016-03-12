@@ -56,9 +56,11 @@
 	- check that deep feature embedding distances is monotonic with respect to "likeness" - proof?
 		- show cluster of tSNE
 		- show avg distance from each other vs other labels
+  - BUG: pandoc has issues with having a figure and a table on the same page - it'll push the text on the page down below the margin:
+    http://tex.stackexchange.com/questions/276699/the-longtable-environment-pushes-content-below-it-into-the-bottom-margin-of-a-pa
 
 # Generate Report
 
 ``` bash
-pandoc REPORT.md -o report.pdf --filter pandoc-citeproc --latex-engine=xelatex
+pandoc report.md -o report.pdf --filter pandoc-citeproc --latex-engine=xelatex
 ```

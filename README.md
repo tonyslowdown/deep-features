@@ -1,4 +1,4 @@
-# deep-features
+# Deep-features for Recognizing Korean Food
 
 Creating a machine learning model to recognize Korean foods in photos using Google's Inception-v3 Convolutional Neural Network to generate and analyze deep features.
 
